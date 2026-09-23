@@ -30,8 +30,8 @@ table{width:100%;border-collapse:collapse}th,td{padding:8px;border-bottom:1px so
 
 <div class="card"><h2>Source automatique</h2>
 <p id="status" class="status">Initialisation…</p>
-<p><b>Source primaire :</b> flux public Yahoo Finance — <code>^GSPC</code> et <code>^GSPTSE</code>. Google Finance demeure le contrôle visuel.</p>
-<p><small>Aucune clé API et aucun abonnement payant ne sont requis dans cette version. Le flux Yahoo utilisé ici n'est toutefois pas une API officielle assortie d'une garantie de service : Yahoo peut modifier ou limiter cet accès. Si le navigateur bloque la requête (CORS) ou si le flux devient indisponible, le programme le signale et conserve les dernières valeurs valides plutôt que d'inventer une donnée.</small></p>
+<p><b>Source automatique :</b> données de marché récupérées par une fonction Vercel côté serveur. Google Finance demeure le contrôle visuel prioritaire.</p>
+<p><small>Le navigateur appelle <code>/api/markets</code>; Vercel récupère ensuite les données de marché côté serveur. Cette architecture évite les blocages CORS du navigateur. Si la source devient indisponible, l'application affiche l'erreur et conserve les dernières valeurs valides.</small></p>
 </div>
 
 <div class="card"><h2>Modèle actuel</h2>
@@ -52,18 +52,18 @@ setInterval(clock,1000);clock();
 let history=[];
 function renderHistory(){ $('hist').innerHTML=history.slice(0,20).map(x=>`<tr><td>${x.t}</td><td>${pct(x.sp)}</td><td>${pct(x.tsx)}</td><td>${cad(x.money)}</td></tr>`).join('')}
 
-async function yahoo(symbol){
- const u='https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(symbol)+'?interval=1m&range=1d&includePrePost=false';
- const r=await fetch(u,{cache:'no-store'}); if(!r.ok) throw Error('HTTP '+r.status);
- const j=await r.json(), m=j?.chart?.result?.[0]?.meta; if(!m) throw Error('réponse invalide');
- const price=Number(m.regularMarketPrice), prev=Number(m.chartPreviousClose ?? m.previousClose);
- if(!Number.isFinite(price)||!Number.isFinite(prev)||prev===0) throw Error('prix indisponible');
- return {price,pct:(price-prev)/prev*100};
+async function markets(){
+ const r=await fetch('/api/markets',{cache:'no-store'});
+ let j;
+ try{j=await r.json()}catch{throw Error('réponse serveur invalide')}
+ if(!r.ok || !j?.ok) throw Error(j?.error||('HTTP '+r.status));
+ if(!j.sp500 || !j.tsx) throw Error('données de marché incomplètes');
+ return j;
 }
 async function update(){
  $('status').textContent='Récupération automatique en cours…';
  try{
-   const [s,t]=await Promise.all([yahoo('^GSPC'),yahoo('^GSPTSE')]);
+   const data=await markets(), s=data.sp500, t=data.tsx;
    const sm=s.pct*SPK, tm=t.pct*TSK, total=sm+tm;
    $('spLevel').textContent=num(s.price); $('tsxLevel').textContent=num(t.price);
    $('spPct').textContent=pct(s.pct); $('tsxPct').textContent=pct(t.pct);
@@ -71,10 +71,10 @@ async function update(){
    $('total').textContent=cad(total); $('total').className='big '+(total>=0?'pos':'neg');
    const tmstr=new Intl.DateTimeFormat('fr-CA',{timeZone:'America/Toronto',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date());
    $('calcTime').textContent='Actualisé à '+tmstr;
-   $('status').textContent='✓ Données récupérées automatiquement. Prochaine tentative au terme du compte à rebours.';
+   $('status').textContent='✓ Données récupérées via Vercel. Prochaine tentative au terme du compte à rebours.';
    history.unshift({t:tmstr,sp:s.pct,tsx:t.pct,money:total}); renderHistory();
  }catch(e){
-   $('status').textContent='⚠ Actualisation automatique impossible : '+e.message+'. Les dernières valeurs valides sont conservées. Utilisez les boutons Google pour vérification.';
+   $('status').textContent='⚠ Actualisation impossible : '+e.message+'. Les dernières valeurs valides sont conservées. Utilisez les boutons Google pour vérification.';
  }
 }
 let left=+$('interval').value;
