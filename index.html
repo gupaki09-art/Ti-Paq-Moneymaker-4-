@@ -7,7 +7,7 @@ main{max-width:1000px;margin:auto;padding:20px}.grid{display:grid;grid-template-
 .card{background:#192028;border:1px solid #303a45;border-radius:16px;padding:17px;margin-bottom:13px}h1{margin-bottom:3px}.muted,small{color:#9da9b5}
 .big{font-size:2.25rem;font-weight:850}.clock,.timer{font-size:2rem;font-weight:800;font-variant-numeric:tabular-nums}
 .pos{color:#59d68d}.neg{color:#ff7474}.status{padding:10px;background:#10161c;border-radius:10px}
-button,a.btn{display:inline-block;margin:8px 6px 0 0;padding:10px 13px;border:0;border-radius:9px;background:#edf2f7;color:#101318;font-weight:750;text-decoration:none;cursor:pointer}
+button,a.btn{display:inline-block;margin:8px 6px 0 0;padding:10px 13px;border:0;border-radius:9px;background:#edf2f7;color:#101318;font-weight:750;text-decoration:none;cursor:pointer}.hidden{display:none!important}
 select{padding:9px;border-radius:8px;background:#10161c;color:#fff;border:1px solid #46515e}.formula{font-family:monospace;background:#10161c;padding:10px;border-radius:9px}
 table{width:100%;border-collapse:collapse}th,td{padding:8px;border-bottom:1px solid #303a45;text-align:right}th:first-child,td:first-child{text-align:left}
 </style><meta name="theme-color" content="#101318"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png"></head><body><main>
@@ -18,7 +18,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:8px;border-bottom:1px so
 <div class="card"><h2>Rendement estimé</h2><div id="total" class="big">—</div><p id="calcTime" class="muted">En attente de données.</p></div>
 <div class="card"><h2>Prochaine mise à jour</h2><div id="timer" class="timer">15:00</div>
 <select id="interval"><option value="300">5 min</option><option value="900" selected>15 min</option><option value="1800">30 min</option></select>
-<button id="refresh">Actualiser</button></div>
+<button id="refresh">Actualiser</button><button id="installApp" class="hidden">Installer l’application</button></div>
 </div>
 
 <div class="grid">
@@ -30,7 +30,8 @@ table{width:100%;border-collapse:collapse}th,td{padding:8px;border-bottom:1px so
 
 <div class="card"><h2>Source automatique</h2>
 <p id="status" class="status">Initialisation…</p>
-<p><b>Source automatique :</b> données de marché récupérées par une fonction Vercel côté serveur. Google Finance demeure le contrôle visuel prioritaire.</p>
+<p><b>Source automatique :</b> <span id="sourceName">Vercel</span>. Google Finance demeure le contrôle visuel prioritaire.</p>
+<p><small id="serverTime">En attente de la première récupération serveur.</small></p>
 <p><small>Le navigateur appelle <code>/api/markets</code>; Vercel récupère ensuite les données de marché côté serveur. Cette architecture évite les blocages CORS du navigateur. Si la source devient indisponible, l'application affiche l'erreur et conserve les dernières valeurs valides.</small></p>
 </div>
 
@@ -71,6 +72,11 @@ async function update(){
    $('total').textContent=cad(total); $('total').className='big '+(total>=0?'pos':'neg');
    const tmstr=new Intl.DateTimeFormat('fr-CA',{timeZone:'America/Toronto',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date());
    $('calcTime').textContent='Actualisé à '+tmstr;
+   $('sourceName').textContent=data.source||'Vercel';
+   if(data.fetchedAt){
+     const serverStamp=new Intl.DateTimeFormat('fr-CA',{timeZone:'America/Toronto',dateStyle:'short',timeStyle:'medium'}).format(new Date(data.fetchedAt));
+     $('serverTime').textContent='Dernière récupération serveur : '+serverStamp;
+   }
    $('status').textContent='✓ Données récupérées via Vercel. Prochaine tentative au terme du compte à rebours.';
    history.unshift({t:tmstr,sp:s.pct,tsx:t.pct,money:total}); renderHistory();
  }catch(e){
@@ -83,4 +89,23 @@ $('interval').onchange=()=>{left=+$('interval').value;draw()};
 $('refresh').onclick=async()=>{await update();left=+$('interval').value;draw()};
 setInterval(async()=>{left--;if(left<=0){await update();left=+$('interval').value}draw()},1000);
 draw();update();
+
+let installPrompt=null;
+const installBtn=$('installApp');
+window.addEventListener('beforeinstallprompt',e=>{
+ e.preventDefault();
+ installPrompt=e;
+ installBtn.classList.remove('hidden');
+});
+installBtn.addEventListener('click',async()=>{
+ if(!installPrompt) return;
+ installPrompt.prompt();
+ await installPrompt.userChoice;
+ installPrompt=null;
+ installBtn.classList.add('hidden');
+});
+window.addEventListener('appinstalled',()=>{
+ installPrompt=null;
+ installBtn.classList.add('hidden');
+});
 </script></main><script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js')}</script></body></html>
