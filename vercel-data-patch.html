@@ -1,0 +1,30 @@
+<!-- Ti-Paq Moneymaker 4.0: Vercel server data patch -->
+<script>
+async function updateFromVercel(){
+  const status=document.getElementById('status');
+  if(status) status.textContent='Récupération des marchés via Vercel…';
+  try{
+    const r=await fetch('/api/markets',{cache:'no-store'});
+    const j=await r.json();
+    if(!r.ok || !j.ok) throw new Error(j.error||('HTTP '+r.status));
+    const s=j.sp500,t=j.tsx;
+    const SPK=171.78,TSK=3743.96;
+    const sm=s.pct*SPK,tm=t.pct*TSK,total=sm+tm;
+    const nf=new Intl.NumberFormat('fr-CA',{maximumFractionDigits:2});
+    const cf=new Intl.NumberFormat('fr-CA',{style:'currency',currency:'CAD',maximumFractionDigits:0,signDisplay:'always'});
+    const pc=n=>(n>=0?'+':'')+n.toFixed(2)+' %';
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+    set('spLevel',nf.format(s.price)); set('tsxLevel',nf.format(t.price));
+    set('spPct',pc(s.pct)); set('tsxPct',pc(t.pct));
+    set('spMoney',cf.format(sm)); set('tsxMoney',cf.format(tm)); set('total',cf.format(total));
+    const z=new Intl.DateTimeFormat('fr-CA',{timeZone:'America/Toronto',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date());
+    set('calcTime','Actualisé à '+z);
+    if(status)status.textContent='✓ Données récupérées via Vercel.';
+    return true;
+  }catch(e){
+    if(status)status.textContent='⚠ Données indisponibles : '+e.message;
+    return false;
+  }
+}
+window.addEventListener('load',()=>setTimeout(updateFromVercel,700));
+</script>
