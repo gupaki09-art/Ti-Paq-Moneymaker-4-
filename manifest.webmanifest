@@ -1,0 +1,21 @@
+{
+  "name": "Ti-Paq Moneymaker 4.0",
+  "short_name": "Ti-Paq",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0f1318",
+  "theme_color": "#101318",
+  "lang": "fr-CA",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
