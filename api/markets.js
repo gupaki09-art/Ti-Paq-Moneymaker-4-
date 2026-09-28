@@ -1,4 +1,5 @@
 const SYMBOLS={sp500:'^GSPC',tsx:'^GSPTSE'};
+const MAX_INTRADAY_PCT=20;
 async function getMarket(symbol){
  const url='https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(symbol)+'?interval=5m&range=1d&includePrePost=false';
  const response=await fetch(url,{headers:{'User-Agent':'Mozilla/5.0',Accept:'application/json'},cache:'no-store'});
@@ -9,8 +10,18 @@ async function getMarket(symbol){
  if(!Number.isFinite(price)||!Number.isFinite(previousClose)||previousClose===0)throw new Error(`Données de marché incomplètes pour ${symbol}`);
  const timestamps=result.timestamp||[],closes=result.indicators?.quote?.[0]?.close||[];
  const bars=[];
- for(let i=0;i<timestamps.length;i++){const close=Number(closes[i]);if(Number.isFinite(close))bars.push({ts:timestamps[i],price:close,pct:((close-previousClose)/previousClose)*100});}
- return{symbol,price,previousClose,pct:((price-previousClose)/previousClose)*100,marketTime:meta.regularMarketTime??null,currency:meta.currency??null,bars};
+ for(let i=0;i<timestamps.length;i++){
+  const close=Number(closes[i]);
+  if(!Number.isFinite(close)||close<=0)continue;
+  const pct=((close-previousClose)/previousClose)*100;
+  // Ignore les barres manifestement corrompues afin qu'un seul point aberrant
+  // ne détruise pas l'échelle du graphique intrajournalier.
+  if(!Number.isFinite(pct)||Math.abs(pct)>MAX_INTRADAY_PCT)continue;
+  bars.push({ts:timestamps[i],price:close,pct});
+ }
+ const pct=((price-previousClose)/previousClose)*100;
+ if(!Number.isFinite(pct)||Math.abs(pct)>MAX_INTRADAY_PCT)throw new Error(`Variation de marché aberrante pour ${symbol}`);
+ return{symbol,price,previousClose,pct,marketTime:meta.regularMarketTime??null,currency:meta.currency??null,bars};
 }
 module.exports=async function handler(req,res){
  res.setHeader('Cache-Control','no-store, max-age=0');
