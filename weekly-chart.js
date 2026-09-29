@@ -3,12 +3,28 @@
   const total=document.getElementById('weekTotal');
   if(!sel||!total||typeof weeklyArchive==='undefined') return;
 
+  // Point de calibration confirmé pour la séance du 28 septembre 2026.
+  // Estimation à 16 h : -2 218 $; rendement réel : -2 500 $.
+  const currentKey='2026-09-28';
+  if(!weeklyArchive[currentKey]){
+    weeklyArchive[currentKey]={
+      label:'Semaine du 28 septembre au 2 octobre 2026',
+      note:'Semaine courante — les rendements sont compilés indépendamment.',
+      days:[['Lun. 28',-2218,-2500],['Mar. 29','—',null],['Mer. 30','—',null],['Jeu. 1','—',null],['Ven. 2','—',null]]
+    };
+  }else{
+    weeklyArchive[currentKey].days[0]=['Lun. 28',-2218,-2500];
+  }
+
+  // Rafraîchit le sélecteur et le tableau afin que la donnée injectée ci-dessus soit visible immédiatement.
+  if(typeof setupWeeks==='function') setupWeeks();
+
   const style=document.createElement('style');
-  style.textContent='.weeklyChartTitle{margin-top:22px}.weeklyLegend{display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 4px}.weeklyLegend span:before{content:"●";margin-right:6px}.weeklyLegend .est:before{color:#66aaff}.weeklyLegend .real:before{color:#59d68d}.weeklyChartWrap{height:310px;position:relative;margin-top:8px}.weeklyChartWrap canvas{width:100%;height:100%}.weeklyChartNote{margin-top:4px}';
+  style.textContent='.weeklyChartTitle{margin-top:22px}.weeklyLegend{display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 4px}.weeklyLegend span:before{content:"●";margin-right:6px}.weeklyLegend .est:before{color:#66aaff}.weeklyLegend .real:before{color:#59d68d}.weeklyChartWrap{height:310px;position:relative;margin-top:8px}.weeklyChartWrap canvas{width:100%;height:100%}.weeklyChartNote{margin-top:4px}.calibrationDelta{margin-top:12px;padding:10px;background:#10161c;border-radius:9px}';
   document.head.appendChild(style);
 
   const host=document.createElement('div');
-  host.innerHTML='<h3 class="weeklyChartTitle">Graphique hebdomadaire — estimé vs réel</h3><div class="weeklyLegend"><span class="est">Rendement estimé à 16 h</span><span class="real">Rendement réel</span></div><div class="weeklyChartWrap"><canvas id="weeklyChart"></canvas></div><p class="weeklyChartNote"><small id="weeklyChartInfo"></small></p>';
+  host.innerHTML='<h3 class="weeklyChartTitle">Graphique hebdomadaire — estimé vs réel</h3><div class="weeklyLegend"><span class="est">Rendement estimé à 16 h</span><span class="real">Rendement réel</span></div><div class="weeklyChartWrap"><canvas id="weeklyChart"></canvas></div><p class="weeklyChartNote"><small id="weeklyChartInfo"></small></p><p class="calibrationDelta"><small><b>Calibration du 28 septembre :</b> estimation −2 218 $ / réel −2 500 $ — écart absolu 282 $, soit 11,28 % du rendement réel. Le modèle a sous-estimé l’ampleur de la perte.</small></p>';
   total.closest('p').after(host);
 
   function drawWeekly(){
