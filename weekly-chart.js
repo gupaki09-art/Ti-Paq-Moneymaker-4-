@@ -3,17 +3,17 @@
   const total=document.getElementById('weekTotal');
   if(!sel||!total||typeof weeklyArchive==='undefined') return;
 
-  // Point de calibration confirmé pour la séance du 28 septembre 2026.
-  // Estimation à 16 h : -2 218 $; rendement réel : -2 500 $.
+  // Point de calibration corrigé pour la séance du 28 septembre 2026.
+  // Estimation à 16 h : -2 218 $; rendement réel : -1 500 $.
   const currentKey='2026-09-28';
   if(!weeklyArchive[currentKey]){
     weeklyArchive[currentKey]={
       label:'Semaine du 28 septembre au 2 octobre 2026',
       note:'Semaine courante — les rendements sont compilés indépendamment.',
-      days:[['Lun. 28',-2218,-2500],['Mar. 29','—',null],['Mer. 30','—',null],['Jeu. 1','—',null],['Ven. 2','—',null]]
+      days:[['Lun. 28',-2218,-1500],['Mar. 29','—',null],['Mer. 30','—',null],['Jeu. 1','—',null],['Ven. 2','—',null]]
     };
   }else{
-    weeklyArchive[currentKey].days[0]=['Lun. 28',-2218,-2500];
+    weeklyArchive[currentKey].days[0]=['Lun. 28',-2218,-1500];
   }
 
   // Rafraîchit le sélecteur et le tableau afin que la donnée injectée ci-dessus soit visible immédiatement.
@@ -24,7 +24,7 @@
   document.head.appendChild(style);
 
   const host=document.createElement('div');
-  host.innerHTML='<h3 class="weeklyChartTitle">Graphique hebdomadaire — estimé vs réel</h3><div class="weeklyLegend"><span class="est">Rendement estimé à 16 h</span><span class="real">Rendement réel</span></div><div class="weeklyChartWrap"><canvas id="weeklyChart"></canvas></div><p class="weeklyChartNote"><small id="weeklyChartInfo"></small></p><p class="calibrationDelta"><small><b>Calibration du 28 septembre :</b> estimation −2 218 $ / réel −2 500 $ — écart absolu 282 $, soit 11,28 % du rendement réel. Le modèle a sous-estimé l’ampleur de la perte.</small></p>';
+  host.innerHTML='<h3 class="weeklyChartTitle">Graphique hebdomadaire — estimé vs réel</h3><div class="weeklyLegend"><span class="est">Rendement estimé à 16 h</span><span class="real">Rendement réel</span></div><div class="weeklyChartWrap"><canvas id="weeklyChart"></canvas></div><p class="weeklyChartNote"><small id="weeklyChartInfo"></small></p><p class="calibrationDelta"><small><b>Calibration du 28 septembre :</b> estimation −2 218 $ / réel −1 500 $ — écart absolu 718 $, soit 47,87 % du rendement réel. Le modèle a surestimé l’ampleur de la perte.</small></p>';
   total.closest('p').after(host);
 
   function drawWeekly(){
