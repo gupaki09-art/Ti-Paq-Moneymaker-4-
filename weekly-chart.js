@@ -3,19 +3,21 @@
   const total=document.getElementById('weekTotal');
   if(!sel||!total||typeof weeklyArchive==='undefined') return;
 
-  // Points de calibration corrigés pour les séances du 28 et 29 septembre 2026.
+  // Points de calibration corrigés pour les séances du 28 au 30 septembre 2026.
   // 28 sept. : estimation à 16 h -2 218 $; rendement réel -1 500 $.
   // 29 sept. : estimation à 16 h -254 $; rendement réel -277 $.
+  // 30 sept. : estimation à 16 h -1 479 $; rendement réel -1 177 $.
   const currentKey='2026-09-28';
   if(!weeklyArchive[currentKey]){
     weeklyArchive[currentKey]={
       label:'Semaine du 28 septembre au 2 octobre 2026',
       note:'Semaine courante — les rendements sont compilés indépendamment.',
-      days:[['Lun. 28',-2218,-1500],['Mar. 29',-254,-277],['Mer. 30','—',null],['Jeu. 1','—',null],['Ven. 2','—',null]]
+      days:[['Lun. 28',-2218,-1500],['Mar. 29',-254,-277],['Mer. 30',-1479,-1177],['Jeu. 1','—',null],['Ven. 2','—',null]]
     };
   }else{
     weeklyArchive[currentKey].days[0]=['Lun. 28',-2218,-1500];
     weeklyArchive[currentKey].days[1]=['Mar. 29',-254,-277];
+    weeklyArchive[currentKey].days[2]=['Mer. 30',-1479,-1177];
   }
 
   // Rafraîchit le sélecteur et le tableau afin que les données injectées ci-dessus soient visibles immédiatement.
@@ -26,7 +28,7 @@
   document.head.appendChild(style);
 
   const host=document.createElement('div');
-  host.innerHTML='<h3 class="weeklyChartTitle">Graphique hebdomadaire — estimé vs réel</h3><div class="weeklyLegend"><span class="est">Rendement estimé à 16 h</span><span class="real">Rendement réel</span></div><div class="weeklyChartWrap"><canvas id="weeklyChart"></canvas></div><p class="weeklyChartNote"><small id="weeklyChartInfo"></small></p><p class="calibrationDelta"><small><b>Calibration du 29 septembre :</b> estimation −254 $ / réel −277 $ — écart absolu 23 $, soit 8,30 % du rendement réel. Le modèle a sous-estimé l’ampleur de la perte de 23 $.</small></p>';
+  host.innerHTML='<h3 class="weeklyChartTitle">Graphique hebdomadaire — estimé vs réel</h3><div class="weeklyLegend"><span class="est">Rendement estimé à 16 h</span><span class="real">Rendement réel</span></div><div class="weeklyChartWrap"><canvas id="weeklyChart"></canvas></div><p class="weeklyChartNote"><small id="weeklyChartInfo"></small></p><p class="calibrationDelta"><small><b>Calibration du 30 septembre :</b> estimation −1 479 $ / réel −1 177 $ — perte estimée 302 $ trop élevée.</small></p>';
   total.closest('p').after(host);
 
   function drawWeekly(){
