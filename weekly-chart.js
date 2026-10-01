@@ -22,6 +22,35 @@
 
   // Rafraîchit le sélecteur et le tableau afin que les données injectées ci-dessus soient visibles immédiatement.
   if(typeof setupWeeks==='function') setupWeeks();
+  const marketObservations={
+    '2026-09-21':{sp:'+1,49 %',tsx:'+0,57 %'},
+    '2026-09-22':{sp:'~0,00 %',tsx:'+0,91 %'},
+    '2026-09-23':{sp:'−0,75 %',tsx:'−1,61 %'},
+    '2026-09-24':{sp:'−0,02 %',tsx:'−0,13 %'}
+  };
+  function renderCalibration(){
+    const body=document.getElementById('calibrationRows');
+    if(!body)return;
+    const rows=[];
+    Object.entries(weeklyArchive).forEach(([weekKey,week])=>{
+      const monday=new Date(weekKey+'T12:00:00');
+      (week.days||[]).forEach((day,index)=>{
+        const date=new Date(monday);date.setDate(monday.getDate()+index);
+        const key=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Toronto',year:'numeric',month:'2-digit',day:'2-digit'}).format(date);
+        const estimate=typeof day[1]==='number'?day[1]:null;
+        const actual=typeof day[2]==='number'?day[2]:null;
+        if(estimate===null&&actual===null)return;
+        rows.push({key,label:date.toLocaleDateString('fr-CA',{timeZone:'America/Toronto',day:'numeric',month:'short'}),estimate,actual});
+      });
+    });
+    rows.sort((a,b)=>a.key.localeCompare(b.key));
+    const sum=rows.reduce((total,row)=>total+(row.actual??0),0);
+    body.innerHTML=rows.map(row=>{
+      const market=marketObservations[row.key]||{};
+      return '<tr><td>'+row.label+'</td><td>'+ (market.sp||'—') +'</td><td>'+ (market.tsx||'—') +'</td><td>'+ (row.estimate===null?'—':cad(row.estimate)) +'</td><td>'+ (row.actual===null?'—':cad(row.actual)) +'</td></tr>';
+    }).join('')+'<tr><td><b>Cumul réel</b></td><td>—</td><td>—</td><td>—</td><td><b>'+cad(sum)+'</b></td></tr>';
+  }
+
 
   const style=document.createElement('style');
   style.textContent='.weeklyChartTitle{margin-top:22px}.weeklyLegend{display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 4px}.weeklyLegend span:before{content:"●";margin-right:6px}.weeklyLegend .est:before{color:#66aaff}.weeklyLegend .real:before{color:#59d68d}.weeklyChartWrap{height:310px;position:relative;margin-top:8px}.weeklyChartWrap canvas{width:100%;height:100%}.weeklyChartNote{margin-top:4px}.calibrationDelta{margin-top:12px;padding:10px;background:#10161c;border-radius:9px}';
@@ -55,6 +84,7 @@
   const baseRender=renderWeek;
   window.renderWeek=function(){baseRender();requestAnimationFrame(drawWeekly)};
   sel.onchange=window.renderWeek;
+  renderCalibration();
   requestAnimationFrame(drawWeekly);
   window.addEventListener('resize',drawWeekly);
 })();
