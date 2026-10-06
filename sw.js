@@ -1,5 +1,5 @@
-const C='tipaq-v10';
-const CORE=['./','./index.html','./weekly-chart.js?v=10','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
+const C='tipaq-v11';
+const CORE=['./','./index.html','./weekly-chart.js?v=10','./manifest.webmanifest?v=20261006','./icon-192.png?v=20261006','./icon-512.png?v=20261006'];
 
 self.addEventListener('install',event=>{
   self.skipWaiting();
