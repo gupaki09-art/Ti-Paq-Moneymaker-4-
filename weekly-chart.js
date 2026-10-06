@@ -22,6 +22,19 @@
     weeklyArchive[currentKey].days[3]=['Jeu. 1',-412,-712];
   }
 
+  // Semaine du 5 au 9 octobre 2026 : données confirmées du lundi.
+  // Ces valeurs sont persistées dans le code afin qu'elles restent visibles après un redémarrage.
+  const octoberKey='2026-10-05';
+  if(!weeklyArchive[octoberKey]){
+    weeklyArchive[octoberKey]={
+      label:'Semaine du 5 octobre 2026 au 9 octobre 2026',
+      note:'Semaine courante — les rendements seront compilés indépendamment.',
+      days:[['Lundi',389,460],['Mardi','—',null],['Mercredi','—',null],['Jeudi','—',null],['Vendredi','—',null]]
+    };
+  }else{
+    weeklyArchive[octoberKey].days[0]=['Lundi',389,460];
+  }
+
   // Rafraîchit le sélecteur et le tableau afin que les données injectées ci-dessus soient visibles immédiatement.
   if(typeof setupWeeks==='function') setupWeeks();
   const marketObservations={
@@ -59,7 +72,7 @@
   document.head.appendChild(style);
 
   const host=document.createElement('div');
-  host.innerHTML='<h3 class="weeklyChartTitle">Graphique hebdomadaire — estimé vs réel</h3><div class="weeklyLegend"><span class="est">Rendement estimé à 16 h</span><span class="real">Rendement réel</span></div><div class="weeklyChartWrap"><canvas id="weeklyChart"></canvas></div><p class="weeklyChartNote"><small id="weeklyChartInfo"></small></p><p class="calibrationDelta"><small><b>Dernière calibration — 1er octobre :</b> estimation −412 $ / réel −712 $ — perte sous-estimée de 300 $.</small></p>';
+  host.innerHTML='<h3 class="weeklyChartTitle">Graphique hebdomadaire — estimé vs réel</h3><div class="weeklyLegend"><span class="est">Rendement estimé à 16 h</span><span class="real">Rendement réel</span></div><div class="weeklyChartWrap"><canvas id="weeklyChart"></canvas></div><p class="weeklyChartNote"><small id="weeklyChartInfo"></small></p><p class="calibrationDelta"><small><b>Dernière calibration — 5 octobre :</b> estimation +389 $ / réel +460 $ — gain sous-estimé de 71 $.</small></p>';
   total.closest('p').after(host);
 
   function drawWeekly(){
