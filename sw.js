@@ -1,5 +1,5 @@
-const C='tipaq-v9';
-const CORE=['./','./index.html','./weekly-chart.js?v=9','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
+const C='tipaq-v10';
+const CORE=['./','./index.html','./weekly-chart.js?v=10','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
 
 self.addEventListener('install',event=>{
   self.skipWaiting();
@@ -27,7 +27,7 @@ self.addEventListener('fetch',event=>{
         const type=response.headers.get('content-type')||'';
         if(!type.includes('text/html')) return response;
         let html=await response.text();
-        if(!html.includes('weekly-chart.js')) html=html.replace('</body>','<script src="./weekly-chart.js?v=9"></script></body>');
+        if(!html.includes('weekly-chart.js')) html=html.replace('</body>','<script src="./weekly-chart.js?v=10"></script></body>');
         return new Response(html,{status:response.status,statusText:response.statusText,headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store'}});
       }catch(e){return caches.match('./index.html')}
     })());
