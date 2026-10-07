@@ -73,7 +73,7 @@
   document.head.appendChild(style);
 
   const host=document.createElement('div');
-  host.innerHTML='<h3 class="weeklyChartTitle">Graphique hebdomadaire — estimé vs réel</h3><div class="weeklyLegend"><span class="est">Rendement estimé à 16 h</span><span class="real">Rendement réel</span></div><div class="weeklyChartWrap"><canvas id="weeklyChart"></canvas></div><p class="weeklyChartNote"><small id="weeklyChartInfo"></small></p><p class="calibrationDelta"><small><b>Dernière calibration — 6 octobre :</b> estimation +1 052 $ / réel +750 $ — gain surestimé de 302 $.</small></p>';
+  host.innerHTML='<h3 class="weeklyChartTitle">Graphique hebdomadaire — estimé vs réel</h3><div class="weeklyLegend"><span class="est">Rendement estimé à 16 h</span><span class="real">Rendement réel</span></div><div class="weeklyChartWrap"><canvas id="weeklyChart"></canvas></div><p class="weeklyChartNote"><small id="weeklyChartInfo"></small></p><p class="calibrationDelta"><small><b>Observation du 6 octobre :</b> estimation +1 052 $ / réel +750 $ — écart de +302 $. <b>Conservée au bilan, mais exclue provisoirement de la calibration.</b> Dernier point retenu pour la calibration : 5 octobre (+389 $ estimé / +460 $ réel).</small></p>';
   total.closest('p').after(host);
 
   function drawWeekly(){
