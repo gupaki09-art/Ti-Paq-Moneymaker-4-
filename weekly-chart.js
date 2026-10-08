@@ -41,6 +41,7 @@
   if(typeof setupWeeks==='function') setupWeeks();
   // Les points atypiques restent visibles, sans modifier les coefficients du modèle.
   const excludedFromCalibration=new Set(['2026-10-06','2026-10-07']);
+  // Seuils de surveillance : paramètres de déclenchement d'une REVUE humaine, pas d'une recalibration automatique.
   const anomalyThreshold={minDollars:500,minRelative:0.50,window:5,minCount:3};
   function calibrationWatch(){
     const observations=Object.entries(weeklyArchive).flatMap(([key,week])=>(week.days||[]).map((d,i)=>{
@@ -87,7 +88,7 @@
 
   const host=document.createElement('div');
   const watch=calibrationWatch();
-  host.innerHTML='<h3 class="weeklyChartTitle">Graphique hebdomadaire — estimé vs réel</h3><div class="weeklyLegend"><span class="est">Rendement estimé à 16 h</span><span class="real">Rendement réel</span></div><div class="weeklyChartWrap"><canvas id="weeklyChart"></canvas></div><p class="weeklyChartNote"><small id="weeklyChartInfo"></small></p><p class="calibrationDelta"><small><b>Calibration surveillée :</b> 6 octobre (+1 052 $ / +750 $, écart 302 $) et 7 octobre (−3 781 $ / −1 700 $, écart −2 081 $) conservés dans les bilans mais exclus provisoirement des ajustements. Coefficients inchangés. <b>Détection de persistance :</b> au moins 3 journées avec un écart ≥ 500 $ et ≥ 50 % du réel parmi les 5 dernières séances comparables déclenchent une recommandation de réévaluation, jamais une modification automatique. État : '+(watch.review?'RÉÉVALUATION RECOMMANDÉE':'surveillance ('+watch.unusual+'/'+watch.observed+' anomalies sur les séances comparables récentes)')+'.</small></p>';
+  host.innerHTML='<h3 class="weeklyChartTitle">Graphique hebdomadaire — estimé vs réel</h3><div class="weeklyLegend"><span class="est">Rendement estimé à 16 h</span><span class="real">Rendement réel</span></div><div class="weeklyChartWrap"><canvas id="weeklyChart"></canvas></div><p class="weeklyChartNote"><small id="weeklyChartInfo"></small></p><p class="calibrationDelta"><small><b>Calibration surveillée :</b> 6 octobre (+1 052 $ / +750 $, écart 302 $) et 7 octobre (−3 781 $ / −1 700 $, écart −2 081 $) conservés dans les bilans mais exclus provisoirement des ajustements. Coefficients inchangés. <b>Détection de persistance :</b> au moins 3 journées avec un écart ≥ 500 $ et ≥ 50 % du réel parmi les 5 dernières séances comparables déclenchent une recommandation de réévaluation, jamais une modification automatique. État : '+(watch.review?'RÉÉVALUATION RECOMMANDÉE — examiner les écarts persistants et valider les nouvelles pondérations avant toute calibration':'surveillance ('+watch.unusual+'/'+watch.observed+' anomalies sur les séances comparables récentes)')+'.</small></p>';
   total.closest('p').after(host);
 
   function drawWeekly(){
