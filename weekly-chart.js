@@ -29,15 +29,28 @@
     weeklyArchive[octoberKey]={
       label:'Semaine du 5 octobre 2026 au 9 octobre 2026',
       note:'Semaine courante — les rendements seront compilés indépendamment.',
-      days:[['Lundi',389,460],['Mardi',1052,750],['Mercredi','—',null],['Jeudi','—',null],['Vendredi','—',null]]
+      days:[['Lundi',389,460],['Mardi',1052,750],['Mercredi',-3781,-1700],['Jeudi','—',null],['Vendredi','—',null]]
     };
   }else{
     weeklyArchive[octoberKey].days[0]=['Lundi',389,460];
     weeklyArchive[octoberKey].days[1]=['Mardi',1052,750];
+    weeklyArchive[octoberKey].days[2]=['Mercredi',-3781,-1700];
   }
 
   // Rafraîchit le sélecteur et le tableau afin que les données injectées ci-dessus soient visibles immédiatement.
   if(typeof setupWeeks==='function') setupWeeks();
+  // Les points atypiques restent visibles, sans modifier les coefficients du modèle.
+  const excludedFromCalibration=new Set(['2026-10-06','2026-10-07']);
+  const anomalyThreshold={minDollars:500,minRelative:0.50,window:5,minCount:3};
+  function calibrationWatch(){
+    const observations=Object.entries(weeklyArchive).flatMap(([key,week])=>(week.days||[]).map((d,i)=>{
+      const date=new Date(key+'T12:00:00');date.setDate(date.getDate()+i);
+      return {date:date.toISOString().slice(0,10),estimated:d[1],actual:d[2]};
+    })).filter(d=>Number.isFinite(d.estimated)&&Number.isFinite(d.actual)).sort((a,b)=>a.date.localeCompare(b.date));
+    const last=observations.slice(-anomalyThreshold.window);
+    const unusual=last.filter(d=>Math.abs(d.estimated-d.actual)>=anomalyThreshold.minDollars&&Math.abs(d.estimated-d.actual)/Math.max(Math.abs(d.actual),1)>=anomalyThreshold.minRelative);
+    return {unusual:unusual.length,observed:last.length,review:last.length>=anomalyThreshold.window&&unusual.length>=anomalyThreshold.minCount};
+  }
   const marketObservations={
     '2026-09-21':{sp:'+1,49 %',tsx:'+0,57 %'},
     '2026-09-22':{sp:'~0,00 %',tsx:'+0,91 %'},
@@ -73,7 +86,8 @@
   document.head.appendChild(style);
 
   const host=document.createElement('div');
-  host.innerHTML='<h3 class="weeklyChartTitle">Graphique hebdomadaire — estimé vs réel</h3><div class="weeklyLegend"><span class="est">Rendement estimé à 16 h</span><span class="real">Rendement réel</span></div><div class="weeklyChartWrap"><canvas id="weeklyChart"></canvas></div><p class="weeklyChartNote"><small id="weeklyChartInfo"></small></p><p class="calibrationDelta"><small><b>Observation du 6 octobre :</b> estimation +1 052 $ / réel +750 $ — écart de +302 $. <b>Conservée au bilan, mais exclue provisoirement de la calibration.</b> Dernier point retenu pour la calibration : 5 octobre (+389 $ estimé / +460 $ réel).</small></p>';
+  const watch=calibrationWatch();
+  host.innerHTML='<h3 class="weeklyChartTitle">Graphique hebdomadaire — estimé vs réel</h3><div class="weeklyLegend"><span class="est">Rendement estimé à 16 h</span><span class="real">Rendement réel</span></div><div class="weeklyChartWrap"><canvas id="weeklyChart"></canvas></div><p class="weeklyChartNote"><small id="weeklyChartInfo"></small></p><p class="calibrationDelta"><small><b>Calibration surveillée :</b> 6 octobre (+1 052 $ / +750 $, écart 302 $) et 7 octobre (−3 781 $ / −1 700 $, écart −2 081 $) conservés dans les bilans mais exclus provisoirement des ajustements. Coefficients inchangés. <b>Détection de persistance :</b> au moins 3 journées avec un écart ≥ 500 $ et ≥ 50 % du réel parmi les 5 dernières séances comparables déclenchent une recommandation de réévaluation, jamais une modification automatique. État : '+(watch.review?'RÉÉVALUATION RECOMMANDÉE':'surveillance ('+watch.unusual+'/'+watch.observed+' anomalies sur les séances comparables récentes)')+'.</small></p>';
   total.closest('p').after(host);
 
   function drawWeekly(){
