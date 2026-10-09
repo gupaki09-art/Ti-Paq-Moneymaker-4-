@@ -10,18 +10,19 @@
     weeklyArchive[octoberKey]={
       label:'Semaine du 5 octobre 2026 au 9 octobre 2026',
       note:'Semaine courante — les rendements seront compilés indépendamment.',
-      days:[['Lundi',389,460],['Mardi',1052,750],['Mercredi',-3781,-1700],['Jeudi','—',null],['Vendredi','—',null]]
+      days:[['Lundi',389,460],['Mardi',1052,750],['Mercredi',-3781,-1700],['Jeudi',433,-501],['Vendredi','—',null]]
     };
   }else{
     weeklyArchive[octoberKey].days[0]=['Lundi',389,460];
     weeklyArchive[octoberKey].days[1]=['Mardi',1052,750];
     weeklyArchive[octoberKey].days[2]=['Mercredi',-3781,-1700];
+    weeklyArchive[octoberKey].days[3]=['Jeudi',433,-501];
   }
 
   // Rafraîchit le sélecteur et le tableau afin que les données injectées ci-dessus soient visibles immédiatement.
   if(typeof setupWeeks==='function') setupWeeks();
   // Les points atypiques restent visibles, sans modifier les coefficients du modèle.
-  const excludedFromCalibration=new Set(['2026-10-06','2026-10-07']);
+  const excludedFromCalibration=new Set(['2026-10-06','2026-10-07','2026-10-08']);
   // Seuils de surveillance : paramètres de déclenchement d'une REVUE humaine, pas d'une recalibration automatique.
   const anomalyThreshold={minDollars:500,minRelative:0.50,window:5,minCount:3};
   function calibrationWatch(){
@@ -69,7 +70,7 @@
 
   const host=document.createElement('div');
   const watch=calibrationWatch();
-  host.innerHTML='<h3 class="weeklyChartTitle">Graphique hebdomadaire — estimé vs réel</h3><div class="weeklyLegend"><span class="est">Rendement estimé à 16 h</span><span class="real">Rendement réel</span></div><div class="weeklyChartWrap"><canvas id="weeklyChart"></canvas></div><p class="weeklyChartNote"><small id="weeklyChartInfo"></small></p><p class="calibrationDelta"><small><b>Calibration surveillée :</b> 6 octobre (+1 052 $ / +750 $, écart 302 $) et 7 octobre (−3 781 $ / −1 700 $, écart −2 081 $) conservés dans les bilans mais exclus provisoirement des ajustements. Coefficients inchangés. <b>Détection de persistance :</b> au moins 3 journées avec un écart ≥ 500 $ et ≥ 50 % du réel parmi les 5 dernières séances comparables déclenchent une recommandation de réévaluation, jamais une modification automatique. État : '+(watch.review?'RÉÉVALUATION RECOMMANDÉE — examiner les écarts persistants et valider les nouvelles pondérations avant toute calibration':'surveillance ('+watch.unusual+'/'+watch.observed+' anomalies sur les séances comparables récentes)')+'.</small></p>';
+  host.innerHTML='<h3 class="weeklyChartTitle">Graphique hebdomadaire — estimé vs réel</h3><div class="weeklyLegend"><span class="est">Rendement estimé à 16 h</span><span class="real">Rendement réel</span></div><div class="weeklyChartWrap"><canvas id="weeklyChart"></canvas></div><p class="weeklyChartNote"><small id="weeklyChartInfo"></small></p><p class="calibrationDelta"><small><b>Calibration surveillée :</b> 6 octobre (+1 052 $ / +750 $, écart 302 $) 7 octobre (−3 781 $ / −1 700 $, écart −2 081 $) et 8 octobre (+433 $ / −501 $, écart +934 $) conservés dans les bilans mais exclus provisoirement des ajustements. Coefficients inchangés. <b>Détection de persistance :</b> au moins 3 journées avec un écart ≥ 500 $ et ≥ 50 % du réel parmi les 5 dernières séances comparables déclenchent une recommandation de réévaluation, jamais une modification automatique. État : '+(watch.review?'RÉÉVALUATION RECOMMANDÉE — examiner les écarts persistants et valider les nouvelles pondérations avant toute calibration':'surveillance ('+watch.unusual+'/'+watch.observed+' anomalies sur les séances comparables récentes)')+'.</small></p>';
   total.closest('p').after(host);
 
   function drawWeekly(){
