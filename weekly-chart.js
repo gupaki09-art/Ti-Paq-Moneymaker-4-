@@ -3,25 +3,6 @@
   const total=document.getElementById('weekTotal');
   if(!sel||!total||typeof weeklyArchive==='undefined') return;
 
-  // Points de calibration corrigés pour les séances du 28 au 30 septembre 2026.
-  // 28 sept. : estimation à 16 h -2 218 $; rendement réel -1 500 $.
-  // 29 sept. : estimation à 16 h -254 $; rendement réel -277 $.
-  // 30 sept. : estimation à 16 h -1 479 $; rendement réel -1 177 $.
-  // 1 oct. : estimation à 16 h -412 $; rendement réel -712 $.
-  const currentKey='2026-09-28';
-  if(!weeklyArchive[currentKey]){
-    weeklyArchive[currentKey]={
-      label:'Semaine du 28 septembre au 2 octobre 2026',
-      note:'Semaine courante — les rendements sont compilés indépendamment.',
-      days:[['Lun. 28',-2218,-1500],['Mar. 29',-254,-277],['Mer. 30',-1479,-1177],['Jeu. 1',-412,-712],['Ven. 2','—',null]]
-    };
-  }else{
-    weeklyArchive[currentKey].days[0]=['Lun. 28',-2218,-1500];
-    weeklyArchive[currentKey].days[1]=['Mar. 29',-254,-277];
-    weeklyArchive[currentKey].days[2]=['Mer. 30',-1479,-1177];
-    weeklyArchive[currentKey].days[3]=['Jeu. 1',-412,-712];
-  }
-
   // Semaine du 5 au 9 octobre 2026 : données confirmées du lundi et du mardi.
   // Ces valeurs sont persistées dans le code afin qu'elles restent visibles après un redémarrage.
   const octoberKey='2026-10-05';
