@@ -59,12 +59,13 @@
     rows.sort((a,b)=>a.key.localeCompare(b.key));
     const sum=rows.reduce((total,row)=>total+(row.actual??0),0);
     body.innerHTML=rows.map(row=>{
-      const market=marketObservations[row.key]||{};
+      const saved=localStorage.getItem('tipaq-market-close-'+row.key);let market=marketObservations[row.key]||{};if(saved){try{const v=JSON.parse(saved);if(Number.isFinite(v.sp)&&Number.isFinite(v.tsx))market={sp:pct(v.sp),tsx:pct(v.tsx)};}catch(e){}}
       return '<tr><td>'+row.label+'</td><td>'+ (market.sp||'—') +'</td><td>'+ (market.tsx||'—') +'</td><td>'+ (row.estimate===null?'—':cad(row.estimate)) +'</td><td>'+ (row.actual===null?'—':cad(row.actual)) +'</td></tr>';
     }).join('')+'<tr><td><b>Cumul réel</b></td><td>—</td><td>—</td><td>—</td><td><b>'+cad(sum)+'</b></td></tr>';
   }
 
 
+  window.renderCalibration=renderCalibration;
   const style=document.createElement('style');
   style.textContent='.weeklyChartTitle{margin-top:22px}.weeklyLegend{display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 4px}.weeklyLegend span:before{content:"●";margin-right:6px}.weeklyLegend .est:before{color:#66aaff}.weeklyLegend .real:before{color:#59d68d}.weeklyChartWrap{height:310px;position:relative;margin-top:8px}.weeklyChartWrap canvas{width:100%;height:100%}.weeklyChartNote{margin-top:4px}.calibrationDelta{margin-top:12px;padding:10px;background:#10161c;border-radius:9px}';
   document.head.appendChild(style);
