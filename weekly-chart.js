@@ -3,20 +3,21 @@
   const total=document.getElementById('weekTotal');
   if(!sel||!total||typeof weeklyArchive==='undefined') return;
 
-  // Semaine du 5 au 9 octobre 2026 : données confirmées du lundi et du mardi.
+  // Semaine du 5 au 9 octobre 2026 : données confirmées du lundi au vendredi.
   // Ces valeurs sont persistées dans le code afin qu'elles restent visibles après un redémarrage.
   const octoberKey='2026-10-05';
   if(!weeklyArchive[octoberKey]){
     weeklyArchive[octoberKey]={
       label:'Semaine du 5 octobre 2026 au 9 octobre 2026',
       note:'Semaine courante — les rendements seront compilés indépendamment.',
-      days:[['Lundi',389,460],['Mardi',1052,750],['Mercredi',-3781,-1700],['Jeudi',433,-501],['Vendredi','—',null]]
+      days:[['Lundi',389,460],['Mardi',1052,750],['Mercredi',-3781,-1700],['Jeudi',433,-501],['Vendredi',3455,2600]]
     };
   }else{
     weeklyArchive[octoberKey].days[0]=['Lundi',389,460];
     weeklyArchive[octoberKey].days[1]=['Mardi',1052,750];
     weeklyArchive[octoberKey].days[2]=['Mercredi',-3781,-1700];
     weeklyArchive[octoberKey].days[3]=['Jeudi',433,-501];
+    weeklyArchive[octoberKey].days[4]=['Vendredi',3455,2600];
   }
 
   // Rafraîchit le sélecteur et le tableau afin que les données injectées ci-dessus soient visibles immédiatement.
