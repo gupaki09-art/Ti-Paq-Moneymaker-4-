@@ -41,6 +41,73 @@ function syncActuals(){
  }));
  records().forEach(r=>{if(Number.isFinite(map[r.date])&&r.actual!==map[r.date]){r.actual=map[r.date];localStorage.setItem(PREFIX+r.date,JSON.stringify(r))}});
 }
+function drawAccuracy(data){
+ const canvas=document.getElementById('optAccuracyChart');if(!canvas)return;
+ const ctx=canvas.getContext('2d');if(!ctx)return;
+ const rows=data.filter(r=>Number.isFinite(r.actual)&&Number.isFinite(r.experimental)&&Number.isFinite(r.baseline));
+ const width=Math.max(300,Math.round(canvas.getBoundingClientRect().width||340)),height=240,dpr=window.devicePixelRatio||1;
+ canvas.width=width*dpr;canvas.height=height*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+ ctx.clearRect(0,0,width,height);ctx.fillStyle='#aab5c5';ctx.font='12px sans-serif';
+ if(!rows.length){ctx.fillText('En attente des premières comparaisons prospectives.',12,110);return;}
+ let s1=0,s2=0;const points=rows.map((r,i)=>{s1+=Math.abs(r.baseline-r.actual);s2+=Math.abs(r.experimental-r.actual);return {a:s1/(i+1),b:s2/(i+1)}});
+ const max=Math.max(1,...points.flatMap(p=>[p.a,p.b]))*1.1,left=54,right=12,top=20,bottom=36;
+ ctx.strokeStyle='#627084';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(left,top);ctx.lineTo(left,height-bottom);ctx.lineTo(width-right,height-bottom);ctx.stroke();
+ ctx.fillStyle='#aab5c5';ctx.fillText(Math.round(max)+' 
+ syncActuals();const data=records(),ready=data.filter(r=>Number.isFinite(r.actual)&&Number.isFinite(r.experimental)&&Number.isFinite(r.baseline));
+ const avg=field=>ready.length?ready.reduce((s,r)=>s+Math.abs(r[field]-r.actual),0)/ready.length:null;
+ const current=fitted(data.filter(valid));
+ const status=document.getElementById('optStatus'),table=document.getElementById('optRows');
+ if(!status||!table)return;
+ const count=data.filter(valid).length;
+ status.textContent=current?'Modèle expérimental prêt : '+count+' observations locales avec variations de clôture et rendement réel.':'Apprentissage en attente : '+count+'/8 observations complètes. Les données historiques approximatives ne sont pas utilisées pour entraîner le modèle.';
+ document.getElementById('optCoefficients').textContent=current?'Estimation = '+current.intercept.toFixed(2)+' + '+current.a.toFixed(2)+' × Δ S&P (%) + '+current.b.toFixed(2)+' × Δ TSX (%)':'Coefficients expérimentaux non calculés.';
+ document.getElementById('optMetrics').textContent=ready.length?'Comparaison prospective sur '+ready.length+' séance(s) : erreur absolue moyenne actuelle '+money(avg('baseline'))+' ; expérimentale '+money(avg('experimental'))+'.':'Aucune comparaison prospective disponible pour le moment.';
+ drawAccuracy(data);
+ table.innerHTML=data.slice().reverse().map(r=>'<tr><td>'+r.date+'</td><td>'+money(r.baseline)+'</td><td>'+money(r.experimental)+'</td><td>'+money(r.actual)+'</td><td>'+(r.experimental===null?'Apprentissage':'Prévision figée')+'</td></tr>').join('')||'<tr><td colspan="5">Aucune clôture enregistrée sur cet appareil.</td></tr>';
+}
+const nav=document.createElement('div');nav.className='card';nav.style.cssText='display:flex;gap:8px;flex-wrap:wrap';
+nav.innerHTML='<button id="tabMain" type="button">Tableau de bord</button><button id="tabOpt" type="button">Optimisation expérimentale</button>';
+const main=document.getElementById('app');main.insertBefore(nav,main.children[2]);
+const panel=document.createElement('section');panel.id='optPanel';panel.className='card hidden';
+panel.innerHTML='<h2>Optimisation expérimentale — comparaison indépendante</h2><p class="muted">Régression ridge (moindres carrés régularisés). Entraînement exclusivement sur les journées passées ayant une observation locale complète. Minimum : 8 séances. Une estimation est figée à la clôture, avant la saisie du réel.</p><p id="optStatus"></p><p class="formula" id="optCoefficients"></p><p id="optMetrics"></p><h3>Évolution de la précision</h3><p class="muted">Erreur absolue moyenne cumulative (en dollars). Plus la courbe est basse, plus le modèle est précis. Seules les prévisions prospectives figées sont comptabilisées.</p><p><span style="color:#5ea7ff">●</span> Modèle actuel &nbsp; <span style="color:#52d9a0">●</span> Modèle expérimental</p><canvas id="optAccuracyChart" style="width:100%;height:240px" role="img" aria-label="Évolution des erreurs absolues moyennes cumulatives des deux modèles"></canvas><p id="optChartSummary"></p><div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Actuel</th><th>Expérimental</th><th>Réel</th><th>État</th></tr></thead><tbody id="optRows"></tbody></table></div><p class="muted"><small>Les données sont conservées dans le stockage local de ce navigateur. Ne pas effacer les données du site. Les pourcentages historiques reconstitués ne sont pas assimilés aux mesures originales à 16 h 20. Aucun coefficient du modèle principal n’est modifié.</small></p>';
+main.appendChild(panel);
+const sections=[...main.children].filter(el=>el!==nav&&el!==panel&&el.tagName!=='H1'&&!(el.tagName==='P'&&el.classList.contains('muted')));
+function show(opt){sections.forEach(el=>el.classList.toggle('hidden',opt));panel.classList.toggle('hidden',!opt);if(!opt&&typeof drawChart==='function')requestAnimationFrame(drawChart);if(opt)render()}
+document.getElementById('tabMain').onclick=()=>show(false);
+document.getElementById('tabOpt').onclick=()=>show(true);
+window.addEventListener('tipaq-final-market-close',e=>saveClose(e.detail));
+window.addEventListener('resize',()=>{if(!panel.classList.contains('hidden'))render()});
+render();
+})();,5,top+5);ctx.fillText('0 
+ syncActuals();const data=records(),ready=data.filter(r=>Number.isFinite(r.actual)&&Number.isFinite(r.experimental)&&Number.isFinite(r.baseline));
+ const avg=field=>ready.length?ready.reduce((s,r)=>s+Math.abs(r[field]-r.actual),0)/ready.length:null;
+ const current=fitted(data.filter(valid));
+ const status=document.getElementById('optStatus'),table=document.getElementById('optRows');
+ if(!status||!table)return;
+ const count=data.filter(valid).length;
+ status.textContent=current?'Modèle expérimental prêt : '+count+' observations locales avec variations de clôture et rendement réel.':'Apprentissage en attente : '+count+'/8 observations complètes. Les données historiques approximatives ne sont pas utilisées pour entraîner le modèle.';
+ document.getElementById('optCoefficients').textContent=current?'Estimation = '+current.intercept.toFixed(2)+' + '+current.a.toFixed(2)+' × Δ S&P (%) + '+current.b.toFixed(2)+' × Δ TSX (%)':'Coefficients expérimentaux non calculés.';
+ document.getElementById('optMetrics').textContent=ready.length?'Comparaison prospective sur '+ready.length+' séance(s) : erreur absolue moyenne actuelle '+money(avg('baseline'))+' ; expérimentale '+money(avg('experimental'))+'.':'Aucune comparaison prospective disponible pour le moment.';
+ table.innerHTML=data.slice().reverse().map(r=>'<tr><td>'+r.date+'</td><td>'+money(r.baseline)+'</td><td>'+money(r.experimental)+'</td><td>'+money(r.actual)+'</td><td>'+(r.experimental===null?'Apprentissage':'Prévision figée')+'</td></tr>').join('')||'<tr><td colspan="5">Aucune clôture enregistrée sur cet appareil.</td></tr>';
+}
+const nav=document.createElement('div');nav.className='card';nav.style.cssText='display:flex;gap:8px;flex-wrap:wrap';
+nav.innerHTML='<button id="tabMain" type="button">Tableau de bord</button><button id="tabOpt" type="button">Optimisation expérimentale</button>';
+const main=document.getElementById('app');main.insertBefore(nav,main.children[2]);
+const panel=document.createElement('section');panel.id='optPanel';panel.className='card hidden';
+panel.innerHTML='<h2>Optimisation expérimentale — comparaison indépendante</h2><p class="muted">Régression ridge (moindres carrés régularisés). Entraînement exclusivement sur les journées passées ayant une observation locale complète. Minimum : 8 séances. Une estimation est figée à la clôture, avant la saisie du réel.</p><p id="optStatus"></p><p class="formula" id="optCoefficients"></p><p id="optMetrics"></p><div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Actuel</th><th>Expérimental</th><th>Réel</th><th>État</th></tr></thead><tbody id="optRows"></tbody></table></div><p class="muted"><small>Les données sont conservées dans le stockage local de ce navigateur. Ne pas effacer les données du site. Les pourcentages historiques reconstitués ne sont pas assimilés aux mesures originales à 16 h 20. Aucun coefficient du modèle principal n’est modifié.</small></p>';
+main.appendChild(panel);
+const sections=[...main.children].filter(el=>el!==nav&&el!==panel&&el.tagName!=='H1'&&!(el.tagName==='P'&&el.classList.contains('muted')));
+function show(opt){sections.forEach(el=>el.classList.toggle('hidden',opt));panel.classList.toggle('hidden',!opt);if(!opt&&typeof drawChart==='function')requestAnimationFrame(drawChart);if(opt)render()}
+document.getElementById('tabMain').onclick=()=>show(false);
+document.getElementById('tabOpt').onclick=()=>show(true);
+window.addEventListener('tipaq-final-market-close',e=>saveClose(e.detail));
+render();
+})();,20,height-bottom+3);
+ ctx.fillText('1',left,height-10);ctx.fillText(String(points.length),width-right-15,height-10);
+ const x=i=>left+(width-left-right)*(points.length===1?0.5:i/(points.length-1)),y=v=>height-bottom-v/max*(height-top-bottom);
+ [['a','#5ea7ff'],['b','#52d9a0']].forEach(([key,color])=>{ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=2;ctx.beginPath();points.forEach((p,i)=>{if(i===0)ctx.moveTo(x(i),y(p[key]));else ctx.lineTo(x(i),y(p[key]))});ctx.stroke();points.forEach((p,i)=>{ctx.beginPath();ctx.arc(x(i),y(p[key]),3,0,Math.PI*2);ctx.fill()})});
+ document.getElementById('optChartSummary').textContent='Dernière erreur moyenne cumulative : modèle actuel '+money(points.at(-1).a)+' ; expérimental '+money(points.at(-1).b)+'. '+rows.length+' séance(s) comparables.';
+}
 function render(){
  syncActuals();const data=records(),ready=data.filter(r=>Number.isFinite(r.actual)&&Number.isFinite(r.experimental)&&Number.isFinite(r.baseline));
  const avg=field=>ready.length?ready.reduce((s,r)=>s+Math.abs(r[field]-r.actual),0)/ready.length:null;
