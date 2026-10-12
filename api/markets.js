@@ -44,9 +44,17 @@ module.exports=async function handler(req,res){
  try{
   const date=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
   const calendar={sp500:marketCalendar(date,'sp500'),tsx:marketCalendar(date,'tsx')};
-  const[sp500,tsx]=await Promise.all([getMarket(SYMBOLS.sp500),getMarket(SYMBOLS.tsx)]);
+  const [spResult,tsxResult]=await Promise.allSettled([getMarket(SYMBOLS.sp500),getMarket(SYMBOLS.tsx)]);
+  if(calendar.sp500.open&&spResult.status==='rejected')throw spResult.reason;
+  if(calendar.tsx.open&&tsxResult.status==='rejected')throw tsxResult.reason;
+  const sp500=spResult.status==='fulfilled'?spResult.value:{price:null,pct:0,bars:[]};
+  const tsx=tsxResult.status==='fulfilled'?tsxResult.value:{price:null,pct:0,bars:[]};
   const tsxByTs=new Map(tsx.bars.map(b=>[b.ts,b]));
-  const history5m=sp500.bars.map(s=>{const t=tsxByTs.get(s.ts);return t?{ts:s.ts,sp:s.pct,tsx:t.pct}:null}).filter(Boolean);
+  const history5m=(calendar.sp500.open?sp500.bars:tsx.bars).map(b=>{
+   const sp=calendar.sp500.open?b.pct:0;
+   const tsxPct=calendar.tsx.open?(calendar.sp500.open?tsxByTs.get(b.ts)?.pct:b.pct):0;
+   return Number.isFinite(tsxPct)?{ts:b.ts,sp,tsx:tsxPct}:null;
+  }).filter(Boolean);
   delete sp500.bars;delete tsx.bars;
   return res.status(200).json({ok:true,calendar,marketDate:date,sp500,tsx,history5m,fetchedAt:new Date().toISOString(),source:'Yahoo Finance via Vercel'});
  }catch(error){return res.status(502).json({ok:false,error:error instanceof Error?error.message:'Erreur inconnue.'});}
