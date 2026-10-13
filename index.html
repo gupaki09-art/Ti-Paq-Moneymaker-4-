@@ -7,10 +7,10 @@ function showStoredCloseWhenMarketClosed(){
   if(st.open) return false;
   const value=localStorage.getItem('tipaq-final-close-value');
   const date=localStorage.getItem('tipaq-final-close-date');
-  if(value===null||!date) return false;
   const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Toronto',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
   const live=localStorage.getItem('tipaq-live-'+today);
   if(date!==today&&live!==null){$('total').textContent=cad(Number(live));$('calcTime').textContent='Dernière estimation disponible — '+today;return true;}
+  if(value===null||!date) return false;
   const n=Number(value);
   if(!Number.isFinite(n)) return false;
   $('total').textContent=cad(n);
