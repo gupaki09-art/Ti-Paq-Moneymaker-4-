@@ -28,10 +28,14 @@
     weeklyArchive[holidayKey]={label:'Semaine du 12 au 16 octobre 2026',note:'12 octobre : TSX fermé; observation exclue de la calibration.',days:[['Lundi 12',-53,0],['Mardi','—',null],['Mercredi','—',null],['Jeudi','—',null],['Vendredi','—',null]]};
   }
 
+  // 13 octobre 2026 : observation confirmée pour la réévaluation du modèle.
+  weeklyArchive[holidayKey].days[1]=['Mardi 13',1925,364];
+  weeklyArchive[holidayKey].note='12 octobre : TSX fermé; 13 octobre : écart important, réévaluation des coefficients demandée.';
+
   // Rafraîchit le sélecteur et le tableau afin que les données injectées ci-dessus soient visibles immédiatement.
   if(typeof setupWeeks==='function') setupWeeks();
   // Les points atypiques restent visibles, sans modifier les coefficients du modèle.
-  const excludedFromCalibration=new Set(['2026-10-06','2026-10-07','2026-10-08','2026-10-12']);
+  const excludedFromCalibration=new Set(['2026-10-12']);
   // Seuils de surveillance : paramètres de déclenchement d'une REVUE humaine, pas d'une recalibration automatique.
   const anomalyThreshold={minDollars:500,minRelative:0.50,window:5,minCount:3};
   function calibrationWatch(){
