@@ -30,7 +30,8 @@
 
   // 13 octobre 2026 : observation confirmée pour la réévaluation du modèle.
   weeklyArchive[holidayKey].days[1]=['Mardi 13',1925,364];
-  weeklyArchive[holidayKey].note='12 octobre : TSX fermé; 13 octobre : écart important, réévaluation des coefficients demandée.';
+  weeklyArchive[holidayKey].days[2]=['Mercredi 14',-2313,-736];
+  weeklyArchive[holidayKey].note='12 octobre : TSX fermé; 13 et 14 octobre : écarts importants, réévaluation statistique demandée; coefficients inchangés en attente de validation.';
 
   // Rafraîchit le sélecteur et le tableau afin que les données injectées ci-dessus soient visibles immédiatement.
   if(typeof setupWeeks==='function') setupWeeks();
@@ -96,7 +97,7 @@
 
   const host=document.createElement('div');
   const watch=calibrationWatch();
-  host.innerHTML='<h3 class="weeklyChartTitle">Graphique hebdomadaire — estimé vs réel</h3><div class="weeklyLegend"><span class="est">Rendement estimé à 16 h</span><span class="real">Rendement réel</span></div><div class="weeklyChartWrap"><canvas id="weeklyChart"></canvas></div><p class="weeklyChartNote"><small id="weeklyChartInfo"></small></p><p class="calibrationDelta"><small><b>Calibration surveillée :</b> 6 octobre (+1 052 $ / +750 $, écart 302 $) 7 octobre (−3 781 $ / −1 700 $, écart −2 081 $), 8 octobre (+433 $ / −501 $, écart +934 $) et 13 octobre (+1 925 $ / +364 $, écart +1 561 $) retenus pour la réévaluation demandée. Coefficients actuels inchangés en attendant un ajustement validé. <b>Détection de persistance :</b> au moins 3 journées avec un écart ≥ 500 $ et ≥ 50 % du réel parmi les 5 dernières séances comparables déclenchent une recommandation de réévaluation, jamais une modification automatique. État : '+(watch.review?'RÉÉVALUATION RECOMMANDÉE — examiner les écarts persistants et valider les nouvelles pondérations avant toute calibration':'surveillance ('+watch.unusual+'/'+watch.observed+' anomalies sur les séances comparables récentes)')+'.</small></p>';
+  host.innerHTML='<h3 class="weeklyChartTitle">Graphique hebdomadaire — estimé vs réel</h3><div class="weeklyLegend"><span class="est">Rendement estimé à 16 h</span><span class="real">Rendement réel</span></div><div class="weeklyChartWrap"><canvas id="weeklyChart"></canvas></div><p class="weeklyChartNote"><small id="weeklyChartInfo"></small></p><p class="calibrationDelta"><small><b>Calibration surveillée :</b> 6 octobre (+1 052 $ / +750 $, écart 302 $) 7 octobre (−3 781 $ / −1 700 $, écart −2 081 $), 8 octobre (+433 $ / −501 $, écart +934 $) 13 octobre (+1 925 $ / +364 $, écart +1 561 $) et 14 octobre (−2 313 $ / −736 $, écart −1 577 $) retenus pour la réévaluation demandée. Coefficients actuels inchangés en attendant un ajustement validé. <b>Détection de persistance :</b> au moins 3 journées avec un écart ≥ 500 $ et ≥ 50 % du réel parmi les 5 dernières séances comparables déclenchent une recommandation de réévaluation, jamais une modification automatique. État : '+(watch.review?'RÉÉVALUATION RECOMMANDÉE — examiner les écarts persistants et valider les nouvelles pondérations avant toute calibration':'surveillance ('+watch.unusual+'/'+watch.observed+' anomalies sur les séances comparables récentes)')+'.</small></p>';
   total.closest('p').after(host);
 
   function drawWeekly(){
