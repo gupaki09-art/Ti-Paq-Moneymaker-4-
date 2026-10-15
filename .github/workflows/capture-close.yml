@@ -19,10 +19,10 @@ jobs:
       - run: node scripts/capture-close.cjs
       - name: Commit daily archive when changed
         run: |
-          if ! git diff --quiet -- data/final-closes.json; then
+          git add data/final-closes.json
+          if ! git diff --cached --quiet -- data/final-closes.json; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add data/final-closes.json
             git commit -m "Archive final market estimate"
             git push
           fi
