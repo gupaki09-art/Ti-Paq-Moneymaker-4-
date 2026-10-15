@@ -33,6 +33,31 @@
   weeklyArchive[holidayKey].days[2]=['Mercredi 14',-2313,-736];
   weeklyArchive[holidayKey].note='12 octobre : TSX fermé; 13 et 14 octobre : écarts importants, réévaluation statistique demandée; coefficients inchangés en attente de validation.';
 
+  // Synchronise les estimations finales archivées par GitHub Actions.
+  // Ne remplace jamais une estimation ou un rendement déjà confirmé.
+  async function syncServerCloses(){
+    try{
+      const response=await fetch('./data/final-closes.json?ts='+Date.now(),{cache:'no-store'});
+      if(!response.ok)throw Error('Archive HTTP '+response.status);
+      const archive=await response.json();
+      let changed=false;
+      for(const [date,entry] of Object.entries(archive)){
+        if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)||!Number.isFinite(entry?.estimated))continue;
+        const d=new Date(date+'T12:00:00');
+        if(Number.isNaN(d.getTime()))continue;
+        const weekday=d.getDay();
+        if(weekday===0||weekday===6)continue;
+        const key=new Date(d);key.setDate(d.getDate()-(weekday-1));
+        const monday=key.toISOString().slice(0,10);
+        if(!weeklyArchive[monday])weeklyArchive[monday]={label:fmtWeek(monday),note:'Estimations de clôture archivées automatiquement; rendements réels à confirmer.',days:[['Lundi','—',null],['Mardi','—',null],['Mercredi','—',null],['Jeudi','—',null],['Vendredi','—',null]]};
+        const row=weeklyArchive[monday].days[weekday-1];
+        if(row&&typeof row[1]!=='number'){row[1]=entry.estimated;changed=true}
+      }
+      if(changed){const selected=sel.value;setupWeeks();if(weeklyArchive[selected])sel.value=selected;window.renderWeek?.();window.renderCalibration?.()}
+    }catch(error){console.warn('Archive des clôtures indisponible :',error.message)}
+  }
+  syncServerCloses();
+
   // Rafraîchit le sélecteur et le tableau afin que les données injectées ci-dessus soient visibles immédiatement.
   if(typeof setupWeeks==='function') setupWeeks();
   // Les points atypiques restent visibles, sans modifier les coefficients du modèle.
