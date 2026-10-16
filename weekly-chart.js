@@ -44,7 +44,7 @@
       const archive=await response.json();
       let changed=false;
       for(const [date,entry] of Object.entries(archive)){
-        if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)||!Number.isFinite(entry?.estimated))continue;
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isFinite(entry?.estimated))continue;
         const d=new Date(date+'T12:00:00');
         if(Number.isNaN(d.getTime()))continue;
         const weekday=d.getDay();
