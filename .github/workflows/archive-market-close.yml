@@ -1,0 +1,33 @@
+name: Archive daily market close
+on:
+  schedule:
+    # 16:35 New York during EDT and EST, weekdays.
+    - cron: '35 20 * * 1-5'
+    - cron: '35 21 * * 1-5'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: market-close-archive
+  cancel-in-progress: false
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Archive only at 16:35 New York
+        run: node scripts/archive-market-close.cjs
+      - name: Commit updated close archive
+        run: |
+          if git diff --quiet -- data/final-closes.json; then
+            echo "No new close to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/final-closes.json
+          git commit -m "Archive daily market close"
+          git push
