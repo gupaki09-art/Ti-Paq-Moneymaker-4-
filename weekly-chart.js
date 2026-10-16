@@ -31,7 +31,9 @@
   // 13 octobre 2026 : observation confirmée pour la réévaluation du modèle.
   weeklyArchive[holidayKey].days[1]=['Mardi 13',1925,364];
   weeklyArchive[holidayKey].days[2]=['Mercredi 14',-2313,-736];
-  weeklyArchive[holidayKey].note='12 octobre : TSX fermé; 13 et 14 octobre : écarts importants, réévaluation statistique demandée; coefficients inchangés en attente de validation.';
+  // Reconstitution à partir des variations de clôture, distincte d'une capture enregistrée.
+  weeklyArchive[holidayKey].days[3]=['Jeudi 15',1952,2051];
+  weeklyArchive[holidayKey].note='12 octobre : TSX fermé. 15 octobre : estimation +1 952 $ RECONSTITUÉE à partir des indices, et non récupérée du téléphone; réel confirmé +2 051 $. Cette estimation reste exclue de la calibration statistique. Coefficients inchangés.';
 
   // Synchronise les estimations finales archivées par GitHub Actions.
   // Ne remplace jamais une estimation ou un rendement déjà confirmé.
@@ -61,14 +63,14 @@
   // Rafraîchit le sélecteur et le tableau afin que les données injectées ci-dessus soient visibles immédiatement.
   if(typeof setupWeeks==='function') setupWeeks();
   // Les points atypiques restent visibles, sans modifier les coefficients du modèle.
-  const excludedFromCalibration=new Set(['2026-10-12']);
+  const excludedFromCalibration=new Set(['2026-10-12','2026-10-15']);
   // Seuils de surveillance : paramètres de déclenchement d'une REVUE humaine, pas d'une recalibration automatique.
   const anomalyThreshold={minDollars:500,minRelative:0.50,window:5,minCount:3};
   function calibrationWatch(){
     const observations=Object.entries(weeklyArchive).flatMap(([key,week])=>(week.days||[]).map((d,i)=>{
       const date=new Date(key+'T12:00:00');date.setDate(date.getDate()+i);
       return {date:date.toISOString().slice(0,10),estimated:d[1],actual:d[2]};
-    })).filter(d=>Number.isFinite(d.estimated)&&Number.isFinite(d.actual)).sort((a,b)=>a.date.localeCompare(b.date));
+    } )).filter(d=>Number.isFinite(d.estimated)&&Number.isFinite(d.actual)&&!excludedFromCalibration.has(d.date)).sort((a,b)=>a.date.localeCompare(b.date));
     const last=observations.slice(-anomalyThreshold.window);
     const unusual=last.filter(d=>Math.abs(d.estimated-d.actual)>=anomalyThreshold.minDollars&&Math.abs(d.estimated-d.actual)/Math.max(Math.abs(d.actual),1)>=anomalyThreshold.minRelative);
     return {unusual:unusual.length,observed:last.length,review:last.length>=anomalyThreshold.window&&unusual.length>=anomalyThreshold.minCount};
