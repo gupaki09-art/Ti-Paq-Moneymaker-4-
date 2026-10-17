@@ -33,6 +33,7 @@
   weeklyArchive[holidayKey].days[2]=['Mercredi 14',-2313,-736];
   // Reconstitution à partir des variations de clôture, distincte d'une capture enregistrée.
   weeklyArchive[holidayKey].days[3]=['Jeudi 15',1952,2051];
+  weeklyArchive[holidayKey].days[4]=['Vendredi 16',-1033,-786];
   weeklyArchive[holidayKey].note='12 octobre : TSX fermé. 15 octobre : estimation +1 952 $ RECONSTITUÉE à partir des indices, et non récupérée du téléphone; réel confirmé +2 051 $. Cette estimation reste exclue de la calibration statistique. Coefficients inchangés.';
 
   // Synchronise les estimations finales archivées par GitHub Actions.
