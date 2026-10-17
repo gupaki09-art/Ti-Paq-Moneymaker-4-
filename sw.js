@@ -1,4 +1,4 @@
-const C='tipaq-v30';
+const C='tipaq-v31';
 const CORE=['./','./index.html','./weekly-chart.js?v=18','./optimization.js?v=5','./manifest.webmanifest?v=20261006b','./icon-192.png?v=20261006b','./icon-512.png?v=20261006b'];
 
 self.addEventListener('install',event=>{
