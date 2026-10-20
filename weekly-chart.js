@@ -58,6 +58,7 @@
         if(!weeklyArchive[monday])weeklyArchive[monday]={label:fmtWeek(monday),note:'Estimations de clôture archivées automatiquement; rendements réels à confirmer.',days:[['Lundi','—',null],['Mardi','—',null],['Mercredi','—',null],['Jeudi','—',null],['Vendredi','—',null]]};
         const row=weeklyArchive[monday].days[weekday-1];
         if(row&&typeof row[1]!=='number'){row[1]=entry.estimated;changed=true}
+        if(row&&Number.isFinite(entry.actual)&&typeof row[2]!=='number'){row[2]=entry.actual;changed=true}
       }
       if(latestServerDate){
         const entry=archive[latestServerDate];
