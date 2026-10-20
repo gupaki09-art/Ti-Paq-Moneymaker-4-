@@ -44,8 +44,11 @@
       if(!response.ok)throw Error('Archive HTTP '+response.status);
       const archive=await response.json();
       let changed=false;
+      let latestServerDate='';
       for(const [date,entry] of Object.entries(archive)){
         if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isFinite(entry?.estimated))continue;
+        if(date>latestServerDate)latestServerDate=date;
+        if(entry.calibrationEligible===false)excludedFromCalibration.add(date);
         const d=new Date(date+'T12:00:00');
         if(Number.isNaN(d.getTime()))continue;
         const weekday=d.getDay();
@@ -55,6 +58,22 @@
         if(!weeklyArchive[monday])weeklyArchive[monday]={label:fmtWeek(monday),note:'Estimations de clôture archivées automatiquement; rendements réels à confirmer.',days:[['Lundi','—',null],['Mardi','—',null],['Mercredi','—',null],['Jeudi','—',null],['Vendredi','—',null]]};
         const row=weeklyArchive[monday].days[weekday-1];
         if(row&&typeof row[1]!=='number'){row[1]=entry.estimated;changed=true}
+      }
+      if(latestServerDate){
+        const entry=archive[latestServerDate];
+        const localDate=localStorage.getItem('tipaq-final-close-date')||'';
+        if(latestServerDate>localDate){
+          localStorage.setItem('tipaq-final-close-date',latestServerDate);
+          localStorage.setItem('tipaq-final-close-value',String(entry.estimated));
+          localStorage.setItem('tipaq-final-close-'+latestServerDate,String(entry.estimated));
+          window.showSavedClose?.();
+          const label=document.getElementById('savedClose');
+          if(label&&entry.calibrationEligible===false)label.textContent='Dernière clôture archivée — '+latestServerDate+' : '+cad(entry.estimated)+' (reconstituée)';
+          if(typeof marketState==='function'&&!marketState().open){
+            const display=document.getElementById('total');
+            if(display){display.textContent=cad(entry.estimated);display.className='big '+(entry.estimated>=0?'pos':'neg');}
+          }
+        }
       }
       if(changed){const selected=sel.value;setupWeeks();if(weeklyArchive[selected])sel.value=selected;window.renderWeek?.();window.renderCalibration?.()}
     }catch(error){console.warn('Archive des clôtures indisponible :',error.message)}
