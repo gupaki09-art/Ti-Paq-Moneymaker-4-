@@ -1,1 +1,9 @@
-{}
+{
+  "2026-10-19": {
+    "estimated": -281,
+    "source": "reconstructed-official-index-closes",
+    "sp500Pct": 0.408515505,
+    "tsxPct": -0.685305813,
+    "calibrationEligible": false
+  }
+}
