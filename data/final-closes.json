@@ -4,6 +4,7 @@
     "source": "reconstructed-official-index-closes",
     "sp500Pct": 0.408515505,
     "tsxPct": -0.685305813,
-    "calibrationEligible": false
+    "calibrationEligible": false,
+    "actual": -1533
   }
 }
