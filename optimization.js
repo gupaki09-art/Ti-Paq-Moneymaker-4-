@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 // Nouvelle cohorte : aucune observation antérieure à la recalibration n'entre dans les métriques.
-const A=1049.29333074,B=1035.87642009,P='tipaq-experiment-v3-';
+const A=644.88853672,B=1289.77707345,P='tipaq-experiment-v4-';
 const $=id=>document.getElementById(id);
 const cash=n=>Number.isFinite(n)?new Intl.NumberFormat('fr-CA',{style:'currency',currency:'CAD',maximumFractionDigits:0}).format(n):'—';
 const dateQC=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Toronto',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
