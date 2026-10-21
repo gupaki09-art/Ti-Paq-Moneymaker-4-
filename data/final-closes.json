@@ -6,5 +6,11 @@
     "tsxPct": -0.685305813,
     "calibrationEligible": false,
     "actual": -1533
+  },
+  "2026-10-20": {
+    "estimated": 867,
+    "actual": 886,
+    "source": "user-confirmed-close",
+    "calibrationEligible": true
   }
 }
