@@ -36,6 +36,11 @@
   weeklyArchive[holidayKey].days[4]=['Vendredi 16',-1033,-786];
   weeklyArchive[holidayKey].note='12 octobre : TSX fermé. 15 octobre : estimation +1 952 $ RECONSTITUÉE à partir des indices, et non récupérée du téléphone; réel confirmé +2 051 $. Cette estimation reste exclue de la calibration statistique. Coefficients inchangés.';
 
+  // 20 octobre 2026 : estimation et rendement réel confirmés par l'utilisateur.
+  const currentWeekKey='2026-10-19';
+  if(!weeklyArchive[currentWeekKey])weeklyArchive[currentWeekKey]={label:'Semaine du 19 au 23 octobre 2026',note:'Estimations et rendements confirmés.',days:[['Lundi','—',null],['Mardi','—',null],['Mercredi','—',null],['Jeudi','—',null],['Vendredi','—',null]]};
+  weeklyArchive[currentWeekKey].days[1]=['Mardi 20',867,886];
+
   // Synchronise les estimations finales archivées par GitHub Actions.
   // Ne remplace jamais une estimation ou un rendement déjà confirmé.
   async function syncServerCloses(){
