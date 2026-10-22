@@ -40,6 +40,8 @@
   const currentWeekKey='2026-10-19';
   if(!weeklyArchive[currentWeekKey])weeklyArchive[currentWeekKey]={label:'Semaine du 19 au 23 octobre 2026',note:'Estimations et rendements confirmés.',days:[['Lundi','—',null],['Mardi','—',null],['Mercredi','—',null],['Jeudi','—',null],['Vendredi','—',null]]};
   weeklyArchive[currentWeekKey].days[1]=['Mardi 20',867,886];
+  // 21 octobre : estimation de clôture et rendement réel confirmés.
+  weeklyArchive[currentWeekKey].days[2]=['Mercredi 21',1367,889];
 
   // Synchronise les estimations finales archivées par GitHub Actions.
   // Ne remplace jamais une estimation ou un rendement déjà confirmé.
