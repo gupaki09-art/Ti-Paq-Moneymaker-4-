@@ -44,6 +44,8 @@
   weeklyArchive[currentWeekKey].days[2]=['Mercredi 21',1367,889];
   // 22 octobre : valeurs de clôture et rendement réel confirmés.
   weeklyArchive[currentWeekKey].days[3]=['Jeudi 22',-2026,-747];
+  // 23 octobre : estimation et rendement réel confirmés par l'utilisateur.
+  weeklyArchive[currentWeekKey].days[4]=['Vendredi 23',-999,-1537];
 
   // Synchronise les estimations finales archivées par GitHub Actions.
   // Ne remplace jamais une estimation ou un rendement déjà confirmé.
