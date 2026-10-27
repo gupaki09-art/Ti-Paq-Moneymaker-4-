@@ -5,6 +5,9 @@ const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Americ
 const date=parts.year+'-'+parts.month+'-'+parts.day;
 const minutes=Number(parts.hour)*60+Number(parts.minute);
 if(['Sat','Sun'].includes(parts.weekday)||minutes<980||minutes>1100){console.log('Outside closing capture window',date,parts.hour,parts.minute);process.exit(0)}
+const modelMatch=fs.readFileSync('index.html','utf8').match(/\bSPK=(\d+(?:\.\d+)?),TSK=(\d+(?:\.\d+)?)/);
+if(!modelMatch)throw Error('Main calibration coefficients unavailable: refusing to archive');
+const SPK=Number(modelMatch[1]),TSK=Number(modelMatch[2]);
 const file='data/final-closes.json';
 const saved=fs.existsSync(file)?JSON.parse(fs.readFileSync(file,'utf8')):{};
 if(saved[date]){console.log('Already recorded',date);process.exit(0)}
@@ -16,8 +19,8 @@ if(saved[date]){console.log('Already recorded',date);process.exit(0)}
  const spOpen=data.calendar?.sp500?.open!==false,tsxOpen=data.calendar?.tsx?.open!==false;
  if(!spOpen&&!tsxOpen){console.log('Both markets closed');return}
  const sp=spOpen?data.sp500.pct:0,tsx=tsxOpen?data.tsx.pct:0;
- const amount=Math.round(sp*1049.29333074+tsx*1035.87642009);
- saved[date]={estimated:amount,sp,tsx,spOpen,tsxOpen,capturedAt:now.toISOString(),source:data.source||'Vercel',model:'SPK=1049.29333074;TSK=1035.87642009',status:'post-close-snapshot'};
+ const amount=Math.round(sp*SPK+tsx*TSK);
+ saved[date]={estimated:amount,sp,tsx,spOpen,tsxOpen,capturedAt:now.toISOString(),source:data.source||'Vercel',model:'SPK='+SPK+';TSK='+TSK,status:'post-close-snapshot'};
  fs.mkdirSync('data',{recursive:true});fs.writeFileSync(file,JSON.stringify(saved,null,2)+'\n');
  console.log('Saved',date,amount);
 })().catch(e=>{console.error(e);process.exitCode=1});
